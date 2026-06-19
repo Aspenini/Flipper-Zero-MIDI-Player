@@ -138,48 +138,58 @@ static void test_valid_format0(unsigned* failures) {
     const size_t track_start = offset;
 
     const uint8_t track[] = {
-        0x00, 0xFF, 0x51, 0x03, 0x07, 0xA1, 0x20,
-        0x00, 0x90, 0x3C, 0x40,
-        0x60, 0x40, 0x40,
-        0x60, 0x80, 0x3C, 0x00,
-        0x00, 0x40, 0x00,
-        0x00, 0xFF, 0x2F, 0x00,
+        0x00, 0xFF, 0x51, 0x03, 0x07, 0xA1, 0x20, 0x00, 0x90, 0x3C, 0x40, 0x60, 0x40,
+        0x40, 0x60, 0x80, 0x3C, 0x00, 0x00, 0x40, 0x00, 0x00, 0xFF, 0x2F, 0x00,
     };
     memcpy(midi + offset, track, sizeof(track));
     offset += sizeof(track);
     finish_track(midi, track_start, offset);
 
     MidiParser parser;
-    expect_status("valid header", parse_header(midi, offset, &parser), MidiParserStatusOk, failures);
+    expect_status(
+        "valid header", parse_header(midi, offset, &parser), MidiParserStatusOk, failures);
     const MidiHeader* header = midi_parser_get_header(&parser);
     expect_u32("ticks per quarter", header->ticks_per_quarter, 96U, failures);
 
     MidiEvent event;
-    expect_status("tempo event status", midi_parser_next_event(&parser, &event), MidiParserStatusOk, failures);
+    expect_status(
+        "tempo event status",
+        midi_parser_next_event(&parser, &event),
+        MidiParserStatusOk,
+        failures);
     expect_event("tempo event", &event, MidiEventTypeTempo, 0U, 0U, failures);
     expect_u32("tempo value", event.tempo_us_per_quarter, 500000U, failures);
 
-    expect_status("note on C", midi_parser_next_event(&parser, &event), MidiParserStatusOk, failures);
+    expect_status(
+        "note on C", midi_parser_next_event(&parser, &event), MidiParserStatusOk, failures);
     expect_event("note on C event", &event, MidiEventTypeNoteOn, 0U, 60U, failures);
     expect_u32("note on C velocity", event.velocity, 64U, failures);
 
-    expect_status("running note on E", midi_parser_next_event(&parser, &event), MidiParserStatusOk, failures);
+    expect_status(
+        "running note on E", midi_parser_next_event(&parser, &event), MidiParserStatusOk, failures);
     expect_event("running note on E event", &event, MidiEventTypeNoteOn, 96U, 64U, failures);
 
-    expect_status("note off C", midi_parser_next_event(&parser, &event), MidiParserStatusOk, failures);
+    expect_status(
+        "note off C", midi_parser_next_event(&parser, &event), MidiParserStatusOk, failures);
     expect_event("note off C event", &event, MidiEventTypeNoteOff, 192U, 60U, failures);
 
-    expect_status("running note off E", midi_parser_next_event(&parser, &event), MidiParserStatusOk, failures);
+    expect_status(
+        "running note off E",
+        midi_parser_next_event(&parser, &event),
+        MidiParserStatusOk,
+        failures);
     expect_event("running note off E event", &event, MidiEventTypeNoteOff, 192U, 64U, failures);
 
-    expect_status("end of track", midi_parser_next_event(&parser, &event), MidiParserStatusOk, failures);
+    expect_status(
+        "end of track", midi_parser_next_event(&parser, &event), MidiParserStatusOk, failures);
     expect_event("end event", &event, MidiEventTypeEndOfTrack, 192U, 0U, failures);
 }
 
 static void test_bad_magic(unsigned* failures) {
     const uint8_t midi[] = {'N', 'O', 'P', 'E'};
     MidiParser parser;
-    expect_status("bad magic", parse_header(midi, sizeof(midi), &parser), MidiParserStatusBadMagic, failures);
+    expect_status(
+        "bad magic", parse_header(midi, sizeof(midi), &parser), MidiParserStatusBadMagic, failures);
 }
 
 static void test_format1_merge(unsigned* failures) {
@@ -189,8 +199,17 @@ static void test_format1_merge(unsigned* failures) {
     offset = begin_track(midi, offset);
     size_t track_start = offset;
     const uint8_t tempo_track[] = {
-        0x00, 0xFF, 0x51, 0x03, 0x07, 0xA1, 0x20,
-        0x00, 0xFF, 0x2F, 0x00,
+        0x00,
+        0xFF,
+        0x51,
+        0x03,
+        0x07,
+        0xA1,
+        0x20,
+        0x00,
+        0xFF,
+        0x2F,
+        0x00,
     };
     memcpy(midi + offset, tempo_track, sizeof(tempo_track));
     offset += sizeof(tempo_track);
@@ -199,28 +218,42 @@ static void test_format1_merge(unsigned* failures) {
     offset = begin_track(midi, offset);
     track_start = offset;
     const uint8_t note_track[] = {
-        0x00, 0x90, 0x3C, 0x40,
-        0x60, 0x80, 0x3C, 0x00,
-        0x00, 0xFF, 0x2F, 0x00,
+        0x00,
+        0x90,
+        0x3C,
+        0x40,
+        0x60,
+        0x80,
+        0x3C,
+        0x00,
+        0x00,
+        0xFF,
+        0x2F,
+        0x00,
     };
     memcpy(midi + offset, note_track, sizeof(note_track));
     offset += sizeof(note_track);
     finish_track(midi, track_start, offset);
 
     MidiParser parser;
-    expect_status("format 1 header", parse_header(midi, offset, &parser), MidiParserStatusOk, failures);
+    expect_status(
+        "format 1 header", parse_header(midi, offset, &parser), MidiParserStatusOk, failures);
 
     MidiEvent event;
-    expect_status("format 1 tempo", midi_parser_next_event(&parser, &event), MidiParserStatusOk, failures);
+    expect_status(
+        "format 1 tempo", midi_parser_next_event(&parser, &event), MidiParserStatusOk, failures);
     expect_event("format 1 tempo event", &event, MidiEventTypeTempo, 0U, 0U, failures);
 
-    expect_status("format 1 note on", midi_parser_next_event(&parser, &event), MidiParserStatusOk, failures);
+    expect_status(
+        "format 1 note on", midi_parser_next_event(&parser, &event), MidiParserStatusOk, failures);
     expect_event("format 1 note on event", &event, MidiEventTypeNoteOn, 0U, 60U, failures);
 
-    expect_status("format 1 note off", midi_parser_next_event(&parser, &event), MidiParserStatusOk, failures);
+    expect_status(
+        "format 1 note off", midi_parser_next_event(&parser, &event), MidiParserStatusOk, failures);
     expect_event("format 1 note off event", &event, MidiEventTypeNoteOff, 96U, 60U, failures);
 
-    expect_status("format 1 eof", midi_parser_next_event(&parser, &event), MidiParserStatusEof, failures);
+    expect_status(
+        "format 1 eof", midi_parser_next_event(&parser, &event), MidiParserStatusEof, failures);
 }
 
 static void test_smpte_timing(unsigned* failures) {
@@ -234,7 +267,8 @@ static void test_smpte_timing(unsigned* failures) {
     finish_track(midi, track_start, offset);
 
     MidiParser parser;
-    expect_status("smpte timing", parse_header(midi, offset, &parser), MidiParserStatusOk, failures);
+    expect_status(
+        "smpte timing", parse_header(midi, offset, &parser), MidiParserStatusOk, failures);
     const MidiHeader* header = midi_parser_get_header(&parser);
     expect_u32("smpte mode", header->timing_mode, MidiTimingModeSmpte, failures);
     expect_u32("smpte ticks per second", header->ticks_per_second, 2400U, failures);
@@ -244,7 +278,8 @@ static void test_zero_division(unsigned* failures) {
     uint8_t midi[32];
     const size_t size = put_header(midi, 0U, 1U, 0U);
     MidiParser parser;
-    expect_status("zero division", parse_header(midi, size, &parser), MidiParserStatusBadHeader, failures);
+    expect_status(
+        "zero division", parse_header(midi, size, &parser), MidiParserStatusBadHeader, failures);
 }
 
 static void test_malformed_varlen(unsigned* failures) {
@@ -258,7 +293,8 @@ static void test_malformed_varlen(unsigned* failures) {
     finish_track(midi, track_start, offset);
 
     MidiParser parser;
-    expect_status("varlen header", parse_header(midi, offset, &parser), MidiParserStatusOk, failures);
+    expect_status(
+        "varlen header", parse_header(midi, offset, &parser), MidiParserStatusOk, failures);
     MidiEvent event;
     expect_status(
         "overlong varlen",
@@ -273,20 +309,36 @@ static void test_unknown_meta_and_sysex_skip(unsigned* failures) {
     offset = begin_track(midi, offset);
     const size_t track_start = offset;
     const uint8_t track[] = {
-        0x00, 0xFF, 0x7F, 0x02, 0x01, 0x02,
-        0x00, 0xF0, 0x03, 0x01, 0x02, 0x03,
-        0x00, 0xFF, 0x2F, 0x00,
+        0x00,
+        0xFF,
+        0x7F,
+        0x02,
+        0x01,
+        0x02,
+        0x00,
+        0xF0,
+        0x03,
+        0x01,
+        0x02,
+        0x03,
+        0x00,
+        0xFF,
+        0x2F,
+        0x00,
     };
     memcpy(midi + offset, track, sizeof(track));
     offset += sizeof(track);
     finish_track(midi, track_start, offset);
 
     MidiParser parser;
-    expect_status("skip header", parse_header(midi, offset, &parser), MidiParserStatusOk, failures);
+    expect_status(
+        "skip header", parse_header(midi, offset, &parser), MidiParserStatusOk, failures);
     MidiEvent event;
-    expect_status("meta skip status", midi_parser_next_event(&parser, &event), MidiParserStatusOk, failures);
+    expect_status(
+        "meta skip status", midi_parser_next_event(&parser, &event), MidiParserStatusOk, failures);
     expect_event("meta skip event", &event, MidiEventTypeSkipped, 0U, 0U, failures);
-    expect_status("sysex skip status", midi_parser_next_event(&parser, &event), MidiParserStatusOk, failures);
+    expect_status(
+        "sysex skip status", midi_parser_next_event(&parser, &event), MidiParserStatusOk, failures);
     expect_event("sysex skip event", &event, MidiEventTypeSkipped, 0U, 0U, failures);
 }
 
@@ -301,7 +353,11 @@ static void test_missing_running_status(unsigned* failures) {
     finish_track(midi, track_start, offset);
 
     MidiParser parser;
-    expect_status("missing running header", parse_header(midi, offset, &parser), MidiParserStatusOk, failures);
+    expect_status(
+        "missing running header",
+        parse_header(midi, offset, &parser),
+        MidiParserStatusOk,
+        failures);
     MidiEvent event;
     expect_status(
         "missing running event",

@@ -52,10 +52,7 @@ static void midi_ui_draw_callback(Canvas* canvas, void* context) {
     canvas_draw_str(canvas, 2, 48, line);
 
     canvas_draw_str(
-        canvas,
-        2,
-        61,
-        state.status == MidiPlayerStatusPaused ? "OK Play" : "OK Pause");
+        canvas, 2, 61, state.status == MidiPlayerStatusPaused ? "OK Play" : "OK Pause");
     canvas_draw_str_aligned(canvas, 86, 61, AlignRight, AlignBottom, "Vol");
     canvas_draw_str_aligned(canvas, 126, 61, AlignRight, AlignBottom, "Back");
 }

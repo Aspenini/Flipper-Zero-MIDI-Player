@@ -9,14 +9,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MIDI_PLAYER_COMMAND_QUEUE_DEPTH (8U)
-#define MIDI_PLAYER_THREAD_STACK_SIZE (12288U)
-#define MIDI_PLAYER_MAX_ACTIVE_NOTES (128U)
+#define MIDI_PLAYER_COMMAND_QUEUE_DEPTH          (8U)
+#define MIDI_PLAYER_THREAD_STACK_SIZE            (12288U)
+#define MIDI_PLAYER_MAX_ACTIVE_NOTES             (128U)
 #define MIDI_PLAYER_DEFAULT_TEMPO_US_PER_QUARTER (500000UL)
-#define MIDI_PLAYER_DRUM_CHANNEL (9U)
-#define MIDI_PLAYER_VOLUME_STEP (0.10f)
-#define MIDI_PLAYER_DEFAULT_VOLUME (0.85f)
-#define MIDI_PLAYER_MIN_AUDIBLE_NOTE_MS (38U)
+#define MIDI_PLAYER_DRUM_CHANNEL                 (9U)
+#define MIDI_PLAYER_VOLUME_STEP                  (0.10f)
+#define MIDI_PLAYER_DEFAULT_VOLUME               (0.85f)
+#define MIDI_PLAYER_MIN_AUDIBLE_NOTE_MS          (38U)
 
 typedef struct {
     File* file;
@@ -100,11 +100,8 @@ static void midi_player_state_set(
     }
 }
 
-static void midi_player_state_progress(
-    MidiPlayer* player,
-    uint32_t tick,
-    bool has_note,
-    uint8_t note) {
+static void
+    midi_player_state_progress(MidiPlayer* player, uint32_t tick, bool has_note, uint8_t note) {
     if(furi_mutex_acquire(player->state_mutex, FuriWaitForever) == FuriStatusOk) {
         player->state.tick = tick;
         player->state.has_current_note = has_note;
@@ -117,7 +114,11 @@ static void midi_player_state_volume(MidiPlayer* player, float volume, bool show
     if(furi_mutex_acquire(player->state_mutex, FuriWaitForever) == FuriStatusOk) {
         player->state.volume_percent = midi_player_volume_percent(volume);
         if(show_message) {
-            snprintf(player->state.message, sizeof(player->state.message), "Vol %u%%", player->state.volume_percent);
+            snprintf(
+                player->state.message,
+                sizeof(player->state.message),
+                "Vol %u%%",
+                player->state.volume_percent);
         }
         furi_mutex_release(player->state_mutex);
     }
@@ -189,9 +190,8 @@ static bool midi_active_notes_select_best(
             continue;
         }
 
-        if(
-            !found || notes[i].start_tick > best.start_tick ||
-            (notes[i].start_tick == best.start_tick && notes[i].note > best.note)) {
+        if(!found || notes[i].start_tick > best.start_tick ||
+           (notes[i].start_tick == best.start_tick && notes[i].note > best.note)) {
             found = true;
             best = notes[i];
         }
@@ -300,10 +300,9 @@ static bool midi_player_delay_us(
             if(!midi_player_handle_command(player, synth, &command, paused)) {
                 return false;
             }
-            if(
-                *paused &&
-                !midi_player_wait_while_paused(
-                    player, synth, notes, tick, has_lead_channel, lead_channel, paused)) {
+            if(*paused &&
+               !midi_player_wait_while_paused(
+                   player, synth, notes, tick, has_lead_channel, lead_channel, paused)) {
                 return false;
             }
         }
@@ -325,15 +324,15 @@ static uint64_t midi_player_calculate_delay_us(
     }
 
     if(header->timing_mode == MidiTimingModeSmpte) {
-        return header->ticks_per_second == 0U ? 0U :
-                                                ((uint64_t)delta_ticks * 1000000ULL) /
-                                                    (uint64_t)header->ticks_per_second;
+        return header->ticks_per_second == 0U ?
+                   0U :
+                   ((uint64_t)delta_ticks * 1000000ULL) / (uint64_t)header->ticks_per_second;
     }
 
-    return header->ticks_per_quarter == 0U ? 0U :
-                                             ((uint64_t)delta_ticks *
-                                              (uint64_t)tempo_us_per_quarter) /
-                                                 (uint64_t)header->ticks_per_quarter;
+    return header->ticks_per_quarter == 0U ?
+               0U :
+               ((uint64_t)delta_ticks * (uint64_t)tempo_us_per_quarter) /
+                   (uint64_t)header->ticks_per_quarter;
 }
 
 static void midi_channel_stats_note_on(
@@ -374,8 +373,7 @@ static bool midi_player_choose_lead_channel_from_stats(
 
         const uint32_t avg_note = channel_stats->total_note / channel_stats->notes;
         const uint32_t avg_velocity = channel_stats->total_velocity / channel_stats->notes;
-        const uint32_t capped_notes =
-            channel_stats->notes > 1200U ? 1200U : channel_stats->notes;
+        const uint32_t capped_notes = channel_stats->notes > 1200U ? 1200U : channel_stats->notes;
 
         int32_t score = (int32_t)(avg_note * 6U) + (int32_t)(channel_stats->max_note * 3U) +
                         (int32_t)(avg_velocity * 2U) + (int32_t)(capped_notes / 3U);
@@ -428,7 +426,8 @@ static int32_t midi_player_thread(void* context) {
     }
 
     if(!storage_file_open(file, player->path, FSAM_READ, FSOM_OPEN_EXISTING)) {
-        midi_player_state_set(player, MidiPlayerStatusError, MidiParserStatusIoError, "Open failed");
+        midi_player_state_set(
+            player, MidiPlayerStatusError, MidiParserStatusIoError, "Open failed");
         goto cleanup;
     }
 
@@ -445,12 +444,14 @@ static int32_t midi_player_thread(void* context) {
         status = midi_parser_read_header(&parser);
     }
     if(status != MidiParserStatusOk) {
-        midi_player_state_set(player, MidiPlayerStatusError, status, midi_parser_status_string(status));
+        midi_player_state_set(
+            player, MidiPlayerStatusError, status, midi_parser_status_string(status));
         goto cleanup;
     }
 
     if(!midi_synth_acquire(&synth)) {
-        midi_player_state_set(player, MidiPlayerStatusError, MidiParserStatusIoError, "Speaker busy");
+        midi_player_state_set(
+            player, MidiPlayerStatusError, MidiParserStatusIoError, "Speaker busy");
         goto cleanup;
     }
     midi_synth_set_volume(&synth, player->volume);
@@ -466,16 +467,14 @@ static int32_t midi_player_thread(void* context) {
                 if(!midi_player_handle_command(player, &synth, &command, &paused)) {
                     break;
                 }
-                if(
-                    paused &&
-                    !midi_player_wait_while_paused(
-                        player,
-                        &synth,
-                        active_notes,
-                        previous_tick,
-                        has_lead_channel,
-                        lead_channel,
-                        &paused)) {
+                if(paused && !midi_player_wait_while_paused(
+                                 player,
+                                 &synth,
+                                 active_notes,
+                                 previous_tick,
+                                 has_lead_channel,
+                                 lead_channel,
+                                 &paused)) {
                     break;
                 }
             }
@@ -488,7 +487,8 @@ static int32_t midi_player_thread(void* context) {
             break;
         }
         if(status != MidiParserStatusOk) {
-            midi_player_state_set(player, MidiPlayerStatusError, status, midi_parser_status_string(status));
+            midi_player_state_set(
+                player, MidiPlayerStatusError, status, midi_parser_status_string(status));
             break;
         }
 
@@ -519,23 +519,17 @@ static int32_t midi_player_thread(void* context) {
             if(event.channel != MIDI_PLAYER_DRUM_CHANNEL) {
                 midi_channel_stats_note_on(
                     channel_stats, event.channel, event.note, event.velocity);
-                if(
-                    !has_lead_channel ||
-                    channel_stats[event.channel].notes <= 64U ||
-                    (channel_stats[event.channel].notes % 32U) == 0U) {
+                if(!has_lead_channel || channel_stats[event.channel].notes <= 64U ||
+                   (channel_stats[event.channel].notes % 32U) == 0U) {
                     const bool had_lead_channel = has_lead_channel;
                     const uint8_t old_lead_channel = lead_channel;
                     has_lead_channel =
                         midi_player_choose_lead_channel_from_stats(channel_stats, &lead_channel);
-                    if(
-                        has_lead_channel &&
-                        (!had_lead_channel || old_lead_channel != lead_channel)) {
+                    if(has_lead_channel &&
+                       (!had_lead_channel || old_lead_channel != lead_channel)) {
                         char message[32];
                         snprintf(
-                            message,
-                            sizeof(message),
-                            "Lead Ch %u",
-                            (uint8_t)(lead_channel + 1U));
+                            message, sizeof(message), "Lead Ch %u", (uint8_t)(lead_channel + 1U));
                         midi_player_state_set(
                             player, MidiPlayerStatusPlaying, MidiParserStatusOk, message);
                     }

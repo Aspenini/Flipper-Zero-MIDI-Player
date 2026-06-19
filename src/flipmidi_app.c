@@ -9,9 +9,9 @@
 #include <stdio.h>
 #include <string.h>
 
-#define FLIPMIDI_DATA_DIR "/ext/apps_data/flipmidi"
-#define FLIPMIDI_SONGS_DIR "/ext/apps_data/flipmidi/songs"
-#define FLIPMIDI_DEFAULT_PATH "/ext/apps_data/flipmidi/songs/example.mid"
+#define FLIPMIDI_DATA_DIR            "/ext/apps_data/flipmidi"
+#define FLIPMIDI_SONGS_DIR           "/ext/apps_data/flipmidi/songs"
+#define FLIPMIDI_DEFAULT_PATH        "/ext/apps_data/flipmidi/songs/example.mid"
 #define FLIPMIDI_VOLUME_STEP_PERCENT (10U)
 
 static const char* flipmidi_basename(const char* path) {
@@ -38,7 +38,8 @@ static void flipmidi_make_ui_state(
     snprintf(ui_state->filename, sizeof(ui_state->filename), "%s", flipmidi_basename(song_path));
 }
 
-static bool flipmidi_select_song(Storage* storage, DialogsApp* dialogs, FuriString* selected_path) {
+static bool
+    flipmidi_select_song(Storage* storage, DialogsApp* dialogs, FuriString* selected_path) {
     if(!storage || !dialogs || !selected_path) {
         return false;
     }
@@ -75,7 +76,7 @@ static void flipmidi_adjust_volume(MidiPlayer* player, bool increase) {
                      volume + FLIPMIDI_VOLUME_STEP_PERCENT;
     } else {
         volume = volume < FLIPMIDI_VOLUME_STEP_PERCENT ? 0U :
-                                                        volume - FLIPMIDI_VOLUME_STEP_PERCENT;
+                                                         volume - FLIPMIDI_VOLUME_STEP_PERCENT;
     }
 
     MidiPlayerCommand command = {

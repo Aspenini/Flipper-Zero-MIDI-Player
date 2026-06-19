@@ -121,9 +121,8 @@ void midi_synth_note_on(MidiSynth* synth, uint8_t note, uint8_t velocity, MidiSy
         return;
     }
 
-    const bool changed =
-        !synth->active || synth->release_pending || synth->note != note ||
-        synth->velocity != velocity || synth->style != style;
+    const bool changed = !synth->active || synth->release_pending || synth->note != note ||
+                         synth->velocity != velocity || synth->style != style;
 
     if(changed) {
         synth->active = true;
@@ -142,9 +141,8 @@ void midi_synth_note_on(MidiSynth* synth, uint8_t note, uint8_t velocity, MidiSy
 }
 
 void midi_synth_render(MidiSynth* synth) {
-    if(
-        synth && synth->acquired && synth->active && synth->style == MidiSynthStyleDrums &&
-        (furi_get_tick() - synth->voice_start_ms) > 45U) {
+    if(synth && synth->acquired && synth->active && synth->style == MidiSynthStyleDrums &&
+       (furi_get_tick() - synth->voice_start_ms) > 45U) {
         furi_hal_speaker_stop();
         synth->active = false;
         synth->release_pending = false;

@@ -9,8 +9,9 @@ static MidiParserStatus midi_reader_read_exact(MidiParser* parser, uint8_t* data
         return MidiParserStatusIoError;
     }
 
-    return parser->reader.read(parser->reader.context, data, size) == size ? MidiParserStatusOk :
-                                                                       MidiParserStatusTruncated;
+    return parser->reader.read(parser->reader.context, data, size) == size ?
+               MidiParserStatusOk :
+               MidiParserStatusTruncated;
 }
 
 static MidiParserStatus midi_reader_read_u8(MidiParser* parser, uint8_t* value) {
@@ -43,8 +44,8 @@ static MidiParserStatus midi_reader_read_be32(MidiParser* parser, uint32_t* valu
     if(status != MidiParserStatusOk) {
         return status;
     }
-    *value = ((uint32_t)bytes[0] << 24) | ((uint32_t)bytes[1] << 16) |
-             ((uint32_t)bytes[2] << 8) | (uint32_t)bytes[3];
+    *value = ((uint32_t)bytes[0] << 24) | ((uint32_t)bytes[1] << 16) | ((uint32_t)bytes[2] << 8) |
+             (uint32_t)bytes[3];
     return MidiParserStatusOk;
 }
 
@@ -61,8 +62,9 @@ static MidiParserStatus midi_reader_skip(MidiParser* parser, uint32_t size) {
         return MidiParserStatusTruncated;
     }
 
-    return parser->reader.seek(parser->reader.context, position + size) ? MidiParserStatusOk :
-                                                                         MidiParserStatusTruncated;
+    return parser->reader.seek(parser->reader.context, position + size) ?
+               MidiParserStatusOk :
+               MidiParserStatusTruncated;
 }
 
 static MidiParserStatus midi_read_varlen(MidiParser* parser, uint32_t limit, uint32_t* value) {
@@ -89,10 +91,8 @@ static MidiParserStatus midi_read_varlen(MidiParser* parser, uint32_t limit, uin
     return MidiParserStatusMalformedVarlen;
 }
 
-static MidiParserStatus midi_read_track_u8(
-    MidiParser* parser,
-    const MidiTrackCursor* track,
-    uint8_t* value) {
+static MidiParserStatus
+    midi_read_track_u8(MidiParser* parser, const MidiTrackCursor* track, uint8_t* value) {
     if(!parser->reader.tell) {
         return MidiParserStatusIoError;
     }
@@ -102,10 +102,8 @@ static MidiParserStatus midi_read_track_u8(
     return midi_reader_read_u8(parser, value);
 }
 
-static MidiParserStatus midi_read_track_be24(
-    MidiParser* parser,
-    const MidiTrackCursor* track,
-    uint32_t* value) {
+static MidiParserStatus
+    midi_read_track_be24(MidiParser* parser, const MidiTrackCursor* track, uint32_t* value) {
     if(!parser->reader.tell) {
         return MidiParserStatusIoError;
     }
@@ -116,10 +114,8 @@ static MidiParserStatus midi_read_track_be24(
     return midi_reader_read_be24(parser, value);
 }
 
-static MidiParserStatus midi_skip_track_bytes(
-    MidiParser* parser,
-    const MidiTrackCursor* track,
-    uint32_t size) {
+static MidiParserStatus
+    midi_skip_track_bytes(MidiParser* parser, const MidiTrackCursor* track, uint32_t size) {
     if(!parser->reader.tell) {
         return MidiParserStatusIoError;
     }
@@ -219,9 +215,8 @@ MidiParserStatus midi_parser_read_header(MidiParser* parser) {
         if(frames_per_second == 29U) {
             frames_per_second = 30U;
         }
-        if(
-            ticks_per_frame == 0U ||
-            !(frames_per_second == 24U || frames_per_second == 25U || frames_per_second == 30U)) {
+        if(ticks_per_frame == 0U ||
+           !(frames_per_second == 24U || frames_per_second == 25U || frames_per_second == 30U)) {
             return MidiParserStatusUnsupportedDivision;
         }
 
@@ -288,12 +283,13 @@ MidiParserStatus midi_parser_read_header(MidiParser* parser) {
 
     parser->header.partial_tracks = parser->header.track_count > parser->track_count;
     parser->header_loaded = true;
-    return parser->reader.seek(parser->reader.context, parser->tracks[0].start) ? MidiParserStatusOk :
-                                                                                  MidiParserStatusIoError;
+    return parser->reader.seek(parser->reader.context, parser->tracks[0].start) ?
+               MidiParserStatusOk :
+               MidiParserStatusIoError;
 }
 
 static MidiParserStatus
-midi_parser_read_track_event(MidiParser* parser, uint8_t track_index, MidiEvent* event) {
+    midi_parser_read_track_event(MidiParser* parser, uint8_t track_index, MidiEvent* event) {
     memset(event, 0, sizeof(*event));
     event->type = MidiEventTypeNone;
 
