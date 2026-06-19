@@ -1,5 +1,3 @@
-# For details and more options, see documentation/AppManifests.md in flipperzero-firmware.
-
 App(
     appid="flipmidi",
     name="FlipMIDI",
@@ -10,7 +8,7 @@ App(
     fap_icon="flipmidi.png",
     fap_category="Media",
     fap_description="Play Standard MIDI files as retro buzzer music",
-    fap_author="Aspen",
+    fap_author="Aspenini",
     fap_weburl="https://github.com/Aspenini/flipmidi",
     fap_version="0.1.0",
 )
