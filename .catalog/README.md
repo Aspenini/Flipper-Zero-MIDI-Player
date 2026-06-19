@@ -6,54 +6,30 @@ The Flipper speaker is a simple tone buzzer, so this is not a full General MIDI 
 
 ## Features
 
-- File picker for `.mid` files on the SD card.
+- File picker for .mid files on the SD card.
 - Standard MIDI format 0 and format 1 parsing.
 - Best-effort format 2 playback.
 - PPQ timing and basic SMPTE timing support.
 - Tempo changes.
 - Running status.
-- Note on/off, including velocity-zero note-off.
+- Note on and note off events, including velocity-zero note-off.
 - Program change handling for simple buzzer styles.
 - Smart monophonic note selection, with drum channel ignored by default.
-- Pause/resume and master volume controls.
+- Pause, resume, and master volume controls.
 - Parser coverage for malformed files and common MIDI edge cases.
 
 ## SD Card Layout
 
-Copy MIDI files here:
+Copy MIDI files to /ext/apps_data/flipmidi/songs/.
 
-```text
-/ext/apps_data/flipmidi/songs/
-```
-
-The app creates the `flipmidi` and `songs` folders when it opens the file picker, but it does not download or generate songs on the device.
+The app creates the flipmidi and songs folders when it opens the file picker, but it does not download or generate songs on the device.
 
 ## Controls
 
-- `OK`: pause or resume playback.
-- `Up`: increase volume.
-- `Down`: decrease volume.
-- `Back`: stop playback and exit.
-
-## Building
-
-From this directory:
-
-```sh
-ufbt
-```
-
-The built app is written to:
-
-```text
-dist/flipmidi.fap
-```
-
-Copy it to the Flipper SD card under:
-
-```text
-/ext/apps/Media/
-```
+- OK pauses or resumes playback.
+- Up increases volume.
+- Down decreases volume.
+- Back stops playback and exits.
 
 ## Limitations
 
@@ -61,7 +37,3 @@ Copy it to the Flipper SD card under:
 - Instruments are approximated with simple frequency, envelope, and volume changes.
 - Some dense MIDI files will sound simplified because only one note can be audible at once.
 - Full soundfont synthesis, external MIDI output, visualizers, and full General MIDI accuracy are out of scope for this release.
-
-## License
-
-MIT License. See `LICENSE`.
